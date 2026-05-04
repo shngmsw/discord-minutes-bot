@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=%h/personal/projects/discord-minutes-bot
-ExecStart=/usr/bin/env npm run start
+ExecStart=%h/.local/share/mise/installs/node/lts/bin/node dist/index.js
 Restart=on-failure
 RestartSec=5
 Environment=NODE_ENV=production
