@@ -1,0 +1,17 @@
+[Unit]
+Description=Discord Minutes Bot (Craig-like recording + Gemini transcription)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/personal/projects/discord-minutes-bot
+ExecStart=/usr/bin/env npm run start
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
