@@ -57,6 +57,31 @@ npm run dev            # 起動（tsx watch）
 | `TMP_ROOT` | 録音中の一時ファイル置き場（デフォルト `/tmp/discord-minutes`） |
 | `LOG_LEVEL` | `info` / `debug` 等 |
 
+## Docker での常駐（shngmsw-ubuntu）
+
+2026-09-17 から office-wsl の systemd 常駐をやめ、Docker 専用機 shngmsw-ubuntu の
+root dockerd 上でコンテナとして動かしている。ホストにはコードを置かず、手元の clone から
+リモートコンテキスト経由でビルド・起動する。ffmpeg は `ffmpeg-static` のバイナリを使うので
+イメージに apt で入れる必要はない。
+
+ホスト側に置くもの（`~/apps/discord-minutes-bot/.env`、`chmod 600`）。正は Bitwarden
+`discord-minutes-bot:.env`。
+
+```bash
+# ビルド（手元の clone で。Git Bash では MSYS_NO_PATHCONV=1 を付けてパス変換を止める）
+export MSYS_NO_PATHCONV=1
+docker --context shngmsw-ubuntu build -t discord-minutes-bot:latest .
+
+# 起動（初回。更新時は先に docker --context shngmsw-ubuntu rm -f discord-minutes-bot）
+docker --context shngmsw-ubuntu run -d --name discord-minutes-bot   --restart unless-stopped --user 1000:1000   -v /home/shngmsw/apps/discord-minutes-bot/.env:/app/.env:ro   discord-minutes-bot:latest
+
+# 確認（"logged in" が出ればよい）
+docker --context shngmsw-ubuntu logs --tail 20 discord-minutes-bot
+```
+
+録音の一時ファイル（`TMP_ROOT`）はコンテナ内の `/tmp` に置かれ、文字起こし後に消えるので
+永続化しない。`scripts/discord-minutes-bot.service` は旧 WSL 用（systemd --user）で、参考として残してある。
+
 ## 使い方
 
 1. 録音したいボイスチャネルに参加する
